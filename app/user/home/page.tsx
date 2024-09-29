@@ -50,7 +50,9 @@ const UserHome = () => {
         <Flex mt={3} gap={2}>
           {tweet.isLike ? <Icon as={FaHeart} color="red" my={"auto"} onClick={()=>toggleLikeAction(tweet.tweet_id)}/> : <Icon as={FaRegHeart} my={"auto"} onClick={()=>toggleLikeAction(tweet.tweet_id)}/>}
           <Text>{tweet.likes} Likes</Text>
-          {tweet.user_id==session?.user.user_id && <Icon as={FaTrash} color="red.500" my={"auto"} ml={4} onClick={()=>deleteTweetAction(tweet.tweet_id)}/> } 
+
+          {/* @ts-ignore: Unreachable code error */}
+          {session && session.user && session.user.user_id && tweet.user_id==session?.user.user_id && <Icon as={FaTrash} color="red.500" my={"auto"} ml={4} onClick={()=>deleteTweetAction(tweet.tweet_id)}/> } 
         </Flex>
       </Box> 
       })}
