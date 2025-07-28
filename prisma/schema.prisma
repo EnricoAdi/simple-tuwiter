@@ -2,10 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// datasource db {
-//   provider = "mysql"
-//   url      = "mysql://root:@localhost:3306/db_grobox?schema=public"
-// }
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -17,33 +13,37 @@ datasource db {
 //npx prisma db seed
 //npx prisma migrate reset
 
-
-model user{
-  user_id Int @id @default(autoincrement())
-  username String @unique
-  password String
-  picture String
+model user {
+  user_id    Int      @id @default(autoincrement())
+  username   String   @unique
+  password   String
+  picture    String
   created_at DateTime @default(now())
-  tweet tweet[]
-  like like[]
+  tweet      tweet[]
+  like       like[]
+
   @@map("tuwiter_user")
 }
-model tweet{
-  tweet_id Int @id @default(autoincrement())
-  user_id Int
-  tweet_title  String
+
+model tweet {
+  tweet_id      Int      @id @default(autoincrement())
+  user_id       Int
+  tweet_title   String
   tweet_content String
-  created_at DateTime @default(now())
-  user user @relation(fields: [user_id], references: [user_id])
-  like like[]
+  created_at    DateTime @default(now())
+  user          user     @relation(fields: [user_id], references: [user_id])
+  like          like[]
+
   @@map("tuwiter_tweet")
 }
+
 model like {
-  like_id Int @id @default(autoincrement())
-  user_id Int
-  tweet_id Int
-  tweet tweet @relation(fields: [tweet_id], references: [tweet_id])
-  user user @relation(fields: [user_id], references: [user_id])
+  like_id    Int      @id @default(autoincrement())
+  user_id    Int
+  tweet_id   Int
+  tweet      tweet    @relation(fields: [tweet_id], references: [tweet_id])
+  user       user     @relation(fields: [user_id], references: [user_id])
   created_at DateTime @default(now())
+
   @@map("tuwiter_like")
 }

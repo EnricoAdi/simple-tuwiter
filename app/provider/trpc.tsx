@@ -8,37 +8,47 @@ import { useToast } from "@chakra-ui/react";
 import SuccessToast from "@/utils/SuccessToast";
 import ErrorToast from "@/utils/ErrorToast";
 
-export default function TRPCProvider({ children }: { children: React.ReactNode }) {
-  const toast = useToast();
-  const [queryClient] = useState(() => new QueryClient({
-    defaultOptions:{
-      mutations:{
-        onError:(error:any)=>{ 
-          let msg = "Error"
-          try { 
-            const msgObj = JSON.parse(error.message)   
-            msg = msgObj[0].message
-          } catch (err) {
-            msg = error.message
-          } finally{ 
-            ErrorToast(toast,msg)
-          }
-        }
-      }
-    } 
-  }));
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        httpBatchLink({
-          url: `${process.env.NODE_ENV=='development'? 'http://localhost:3000/':'https://simple-tuwiter.vercel.app/'}api/trpc`,
-        }),
-      ],
-    })
-  );
-  return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </trpc.Provider>
-  );
+export default function TRPCProvider({
+	children,
+}: {
+	children: React.ReactNode;
+}) {
+	const toast = useToast();
+	const [queryClient] = useState(
+		() =>
+			new QueryClient({
+				defaultOptions: {
+					mutations: {
+						onError: (error: any) => {
+							let msg = "Error";
+							try {
+								const msgObj = JSON.parse(error.message);
+								msg = msgObj[0].message;
+							} catch (err) {
+								msg = error.message;
+							} finally {
+								ErrorToast(toast, msg);
+							}
+						},
+					},
+				},
+			})
+	);
+	const [trpcClient] = useState(() =>
+		trpc.createClient({
+			links: [
+				httpBatchLink({
+					url: `${process.env.NEXT_PUBLIC_URL}api/trpc`,
+				}),
+			],
+		})
+	);
+	return (
+		<trpc.Provider
+			client={trpcClient}
+			queryClient={queryClient}
+		>
+			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+		</trpc.Provider>
+	);
 }
