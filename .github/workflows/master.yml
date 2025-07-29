@@ -1,0 +1,57 @@
+name: BUILD_AND_DEPLOYMENT
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Authentication Dockerhub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Create build env
+        run: |
+          printf "\
+          NEXT_TELEMETRY_DISABLED=1\n\
+          DATABASE_URL=${{ secrets.DATABASE_URL }}\n\
+          NODE_ENV=${{secrets.NODE_ENV}}\n\
+          NEXT_PUBLIC_ENV=${{secrets.NEXT_PUBLIC_ENV}}\n\
+          NEXTAUTH_URL=${{secrets.NEXTAUTH_URL}}\n\
+          NEXT_PUBLIC_URL=${{secrets.NEXT_PUBLIC_URL}}\n\
+          NEXTAUTH_SECRET=${{secrets.NEXTAUTH_SECRET}}\n\
+          RABBITMQ_SERVER=${{secrets.RABBITMQ_SERVER}}
+          " > .env
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          file: Dockerfile.build
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/simple-tuwiter:latest
+          labels: ${{ steps.meta.outputs.labels }}
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate deployment package
+        run: zip -r deploy.zip . -x '*.git*'
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: ${{ secrets.AWS_APPLICATION_NAME }}
+          environment_name: ${{ secrets.AWS_ENVIRONMENT_NAME }}
+          version_label: "ver-${{ github.sha }}"
+          region: ap-southeast-1
+          deployment_package: deploy.zip
