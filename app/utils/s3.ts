@@ -1,6 +1,5 @@
 import {
 	S3Client,
-	ListObjectsCommand,
 	PutObjectCommand,
 	GetObjectCommand,
 } from "@aws-sdk/client-s3";
@@ -25,7 +24,7 @@ export const S3 = {
 
 		await s3.send(command);
 
-		return `https://${process.env.S3_BUCKET_NAME}.s3.amazonaws.com/${key}`;
+		return key;
 	},
 	getPresignedUrl: async (key: string) => {
 		const s3 = new S3Client({

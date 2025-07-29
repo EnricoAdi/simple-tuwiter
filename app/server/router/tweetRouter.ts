@@ -6,6 +6,7 @@ import CreateTweetUseCase from "@/app/api/use-case/tweet/CreateTweetUseCase";
 import TweetRepository from "@/app/api/repository/TweetRepository";
 import DeleteTweetUseCase from "@/app/api/use-case/tweet/DeleteTweetUseCase";
 import { S3 } from "@/app/utils/s3";
+import { randomTweets } from "@/app/utils/randoms";
 
 const t = initTRPC.create();
 
@@ -75,4 +76,15 @@ export const tweetRouter = t.router({
 				message: `Delete tweet success`,
 			};
 		}),
+	adminSeedTweet: t.procedure.mutation(async (opts) => {
+		for (let i = 0; i < 500; i++) {
+			let userId = Math.floor(Math.random() * 12) + 1;
+			let tweet = randomTweets[Math.floor(Math.random() * randomTweets.length)];
+			await CreateTweetUseCase.execute(tweet.title, tweet.content, userId);
+		}
+		return {
+			data: null,
+			message: `Seed tweet success`,
+		};
+	}),
 });
