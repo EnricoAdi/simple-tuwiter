@@ -25,12 +25,6 @@ export default function RootLayout({
 			<body>
 				<TRPCProvider>
 					<ChakraProvider
-						theme={extendTheme({
-							config: {
-								initialColorMode: "light",
-								useSystemColorMode: false,
-							},
-						})}
 						toastOptions={{ defaultOptions: { position: "bottom" } }}
 					>
 						<NextAuthProvider>{children}</NextAuthProvider>
